@@ -19,9 +19,6 @@ pipeline {
         TDH_HARBOR_REGISTRY_DNS_HARBOR      =  "harbor.apps.corelab.core-software.ch"
         TDH_HARBOR_REGISTRY_ADMIN_USER      =  credentials('harbor-registry-user')
         TDH_HARBOR_REGISTRY_ADMIN_PASSWORD  =  credentials('harbor-registry-password')
-        
-        // Define Newsletter Application Git Repository Parameters
-        APP_DIRECTORY = "newsletter-subscription/"
     }
     
     stages {
