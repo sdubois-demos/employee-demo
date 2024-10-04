@@ -44,7 +44,7 @@ pipeline {
         stage ('Build Docker Image') {
             steps {
                 script {
-                    def pom = readMavenPom file: "${APP_DIRECTORY}/pom.xml"
+                    def pom = readMavenPom file: "pom.xml"
                     env.ARTIFACT_ID = pom.artifactId
                     env.ARTIFACT_VERSION = pom.version
                 }
