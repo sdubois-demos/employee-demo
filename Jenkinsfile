@@ -49,7 +49,7 @@ pipeline {
                     env.ARTIFACT_VERSION = pom.version
                 }
                 
-                sh('docker build -f deploy/Dockerfile \
+                sh('docker build -f Dockerfile \
                     --build-arg JAR_FILE=target/${ARTIFACT_ID}-${ARTIFACT_VERSION}.jar \
                     --build-arg IMAGE_VERSION=${ARTIFACT_VERSION} \
                     -t ${ARTIFACT_ID}:${ARTIFACT_VERSION} .')
