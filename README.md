@@ -12,8 +12,6 @@ mvn clean package -Dmaven.test.skip
 
 
 ### Compile Applicaiton with JUnit Tests
-
-### Integration Environment
 ```
 mvn clean package -Dspring.profiles.active=integration \
       -Dspring.datasource.username=bitnami \
