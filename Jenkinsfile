@@ -27,22 +27,20 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                dir("$APP_DIRECTORY") {
-                    // Run Maven on a Unix agent.
-                    sh('mvn -Dmaven.test.failure.ignore=true \
-                        -Dspring.profiles.active=integration \
-                        -Dspring.datasource.username=$MYSQL_INTEGRATION_USER \
-                        -Dspring.datasource.password=$MYSQL_INTEGRATION_PASSWORD \
-                        clean package')
-                }
+                // Run Maven on a Unix agent.
+                sh('mvn -Dmaven.test.failure.ignore=true \
+                    -Dspring.profiles.active=integration \
+                    -Dspring.datasource.username=$MYSQL_INTEGRATION_USER \
+                    -Dspring.datasource.password=$MYSQL_INTEGRATION_PASSWORD \
+                    clean package')
             }
 
             post {
                 // If Maven was able to run the tests, even if some of the test
                 // failed, record the test results and archive the jar file.
                 success {
-                    junit 'newsletter-subscription/target/surefire-reports/TEST-*.xml'
-                    archiveArtifacts 'newsletter-subscription/target/*.jar'
+                    junit 'target/surefire-reports/TEST-*.xml'
+                    archiveArtifacts 'target/*.jar'
                 }
             }
         }
@@ -54,29 +52,25 @@ pipeline {
                     env.ARTIFACT_VERSION = pom.version
                 }
                 
-                dir("$APP_DIRECTORY") {
-                    sh('docker build -f deploy/Dockerfile \
-                        --build-arg JAR_FILE=target/${ARTIFACT_ID}-${ARTIFACT_VERSION}.jar \
-                        --build-arg IMAGE_VERSION=${ARTIFACT_VERSION} \
-                        -t ${ARTIFACT_ID}:${ARTIFACT_VERSION} .')
-                }
+                sh('docker build -f deploy/Dockerfile \
+                    --build-arg JAR_FILE=target/${ARTIFACT_ID}-${ARTIFACT_VERSION}.jar \
+                    --build-arg IMAGE_VERSION=${ARTIFACT_VERSION} \
+                    -t ${ARTIFACT_ID}:${ARTIFACT_VERSION} .')
             }
         }
         stage ('Push Docker Image to Harbor Registry') {
             steps {
-                dir("$APP_DIRECTORY") {
-                    // Login to the Harbir container Registry
-                    sh('docker login $TDH_HARBOR_REGISTRY_DNS_HARBOR \
-                        -u $TDH_HARBOR_REGISTRY_ADMIN_USER \
-                        -p $TDH_HARBOR_REGISTRY_ADMIN_PASSWORD')
+                // Login to the Harbir container Registry
+                sh('docker login $TDH_HARBOR_REGISTRY_DNS_HARBOR \
+                    -u $TDH_HARBOR_REGISTRY_ADMIN_USER \
+                    -p $TDH_HARBOR_REGISTRY_ADMIN_PASSWORD')
                     
-                    // TAG Docker Images for the Harbor Tegistry and upload the image
-                    sh('docker tag ${ARTIFACT_ID}:${ARTIFACT_VERSION} ${TDH_HARBOR_REGISTRY_DNS_HARBOR}/library/${ARTIFACT_ID}:latest')
-                    sh('docker push ${TDH_HARBOR_REGISTRY_DNS_HARBOR}/library/${ARTIFACT_ID}:latest')
+                // TAG Docker Images for the Harbor Tegistry and upload the image
+                sh('docker tag ${ARTIFACT_ID}:${ARTIFACT_VERSION} ${TDH_HARBOR_REGISTRY_DNS_HARBOR}/library/${ARTIFACT_ID}:latest')
+                sh('docker push ${TDH_HARBOR_REGISTRY_DNS_HARBOR}/library/${ARTIFACT_ID}:latest')
 
-                    // Cleanup Buildfiles
-                    sh('docker builder prune -f')
-                }
+                // Cleanup Buildfiles
+                sh('docker builder prune -f')
             }
         }
     }
