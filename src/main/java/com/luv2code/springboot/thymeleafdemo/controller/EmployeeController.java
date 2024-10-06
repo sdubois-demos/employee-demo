@@ -1,14 +1,13 @@
 package com.luv2code.springboot.thymeleafdemo.controller;
 
-import java.util.List;
-
+import com.luv2code.springboot.thymeleafdemo.entity.Employee;
 import com.luv2code.springboot.thymeleafdemo.service.EmployeeService;
-
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import com.luv2code.springboot.thymeleafdemo.entity.Employee;
+import jakarta.servlet.http.HttpServletRequest;
+import java.util.List;
 
 @Controller
 @RequestMapping("/employees")
@@ -21,15 +20,16 @@ public class EmployeeController {
 	}
 
 	// add mapping for "/list"
-
 	@GetMapping("/list")
-	public String listEmployees(Model theModel) {
+	public String listEmployees(Model theModel, HttpServletRequest request) {
+		String theUplinkURL = request.getRequestURL().toString();
 
 		// get the employees from db
 		List<Employee> theEmployees = employeeService.findAll();
 
 		// add to the spring model
 		theModel.addAttribute("employees", theEmployees);
+		theModel.addAttribute("uplinkURL", theUplinkURL);
 
 		return "employees/list-employees";
 	}
